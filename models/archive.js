@@ -7,6 +7,7 @@ var archiveSchema = new Schema({
     link: String,
     count: Number,
     title: String,
+    read: Boolean,
     date: { type: Date, default: Date.now  }
 }, {collection: 'archive'});
 

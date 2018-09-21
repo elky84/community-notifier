@@ -8,18 +8,58 @@ var express     = require('express');
 var app         = express();
 var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
+var http        = require('http');
 
 // String
 //notifier.notify('Message');
+
+mongoose.Promise = require('bluebird');
 
 var db = mongoose.connection;
 db.on('error', console.error);
 db.once('open', function(){
     // CONNECTED TO MONGODB SERVER
     console.log("Connected to mongod server");
+
+    pollArticle();
 });
 
-mongoose.connect('mongodb://localhost/test_crawler');
+function pollArticle() {
+    archive.find({read: null}, function(err, archives){
+        if(err) return console.log({error: 'database failure'});
+        console.log(JSON.stringify(archives));
+
+        archives.forEach(article => {
+		    //console.log(article.title + ':' + article.link)
+		    notifier.notify({
+                title: article.title,
+                message: article.link,
+                sound: true,
+                wait: true
+            });
+        })
+    }).skip(0).limit(1);
+}
+
+//https://www.npmjs.com/package/node-notifier 참고
+notifier.on('click', function (notifierObject, article) {
+    console.log(article.title + ':' + article.message);
+    archive.findOne({read: null, "link":article.message}, function(err, dbArticle)  {
+        if(err) return console.log({error: 'database failure'});
+
+        dbArticle.read = true;
+        var promise = dbArticle.save();
+        promise.then(function(doc){
+            console.log("read success" + doc);
+            open(dbArticle.link);
+            pollArticle();
+        });
+    });
+});
+
+var promise = mongoose.connect('mongodb://localhost/test_crawler', {
+    useMongoClient: true
+});
 
 // DEFINE MODEL
 var archive = require('./models/archive');
@@ -59,4 +99,27 @@ var server = app.listen(port, function(){
 // 			}
 // 		});
 // 	});
+// })();
+
+// (async () => {
+//     var options = {
+//         hostname: 'localhost',
+//         port: 8080,
+//         path: '/api/archives'
+//     };
+    
+//     function handleResponse(response) {
+//     var serverData = '';
+//     response.on('data', function (chunk) {
+//         serverData += chunk;
+//     });
+//     response.on('end', function () {
+//         console.log("received server data:");
+//         console.log(serverData);
+//     });
+//     }
+    
+//     http.request(options, function(response){
+//     handleResponse(response);
+//     }).end();
 // })();
