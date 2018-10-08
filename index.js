@@ -10,13 +10,9 @@ var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
 var http        = require('http');
 
-// Timer
-// https://nodejs.org/ko/docs/guides/timers-in-node/
-
-// String
-//notifier.notify('Message');
-
 mongoose.Promise = require('bluebird');
+
+// Timer : https://nodejs.org/ko/docs/guides/timers-in-node/
 
 var db = mongoose.connection;
 db.on('error', console.error);
@@ -84,54 +80,7 @@ app.use(bodyParser.json());
 
 var port = process.env.PORT || 8080;
 
-// [CONFIGURE ROUTER]
-var router = require('./routes')(app, archive);
-
 // [RUN SERVER]
 var server = app.listen(port, function(){
  console.log("Express server has started on port " + port)
 });
-
-// (async () => {
-// 	let feed = await parser.parseURL('https://elky84.github.io/feed.xml');
-// 	console.log(feed.title);
-// 	feed.items.forEach(item => {
-// 		//console.log(item.title + ':' + item.link)
-// 		notifier.notify({
-// 			title: item.title,
-// 			message: item.link,
-// 			sound: true,
-// 			wait: true
-// 		}, function (err, response) {
-// 			if (err != null && err != "") {
-// 				console.log(err)
-// 			} else {
-// 				console.log(item.title + ':' + item.link)
-// 				open(item.link);
-// 			}
-// 		});
-// 	});
-// })();
-
-// (async () => {
-//     var options = {
-//         hostname: 'localhost',
-//         port: 8080,
-//         path: '/api/archives'
-//     };
-    
-//     function handleResponse(response) {
-//     var serverData = '';
-//     response.on('data', function (chunk) {
-//         serverData += chunk;
-//     });
-//     response.on('end', function () {
-//         console.log("received server data:");
-//         console.log(serverData);
-//     });
-//     }
-    
-//     http.request(options, function(response){
-//     handleResponse(response);
-//     }).end();
-// })();
