@@ -1,14 +1,10 @@
 const open = require('open');
 const notifier = require('node-notifier');
 
-let Parser = require('rss-parser');
-let parser = new Parser();
-
 var express     = require('express');
 var app         = express();
 var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
-var http        = require('http');
 
 mongoose.Promise = require('bluebird');
 
