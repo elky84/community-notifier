@@ -46,7 +46,7 @@ function pollArticle(count = 10) {
                 var promise = dbArchive.save();
                 promise.then(function(doc){
                     // console.log("notify process success" + doc);
-                    messages.push(archive.title + " -> " + archive.link + " -> " + moment(archive.date).format('YYYY-MM-DD HH:mm'));
+                    messages.push(archive.title + " <" + moment(archive.date).format('YYYY-MM-DD HH:mm') + "> " + archive.link);
 
                     if(messages.length == archives.length) {
                         message = {"text": messages.join("\n")}
