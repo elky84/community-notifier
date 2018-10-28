@@ -17,26 +17,26 @@ db.once('open', function(){
     console.log("Connected to mongod server");
 
     // 우선 한번 실행하고
-    pollArticle();
+    pollArchive();
 
     // interval단위 실행
-    setInterval(pollArticle, 10000);
+    setInterval(pollArchive, 10000);
 });
 
 
-function pollArticle(count = 1) {
-    archive.find({read: null}, function(err, archives){
+function pollArchive(count = 1) {
+    archiveSchema.find({read: null}, function(err, archives){
         if(err) {
             return console.log({error: 'database failure'});
         }
 
         console.log(JSON.stringify(archives));
 
-        archives.forEach(article => {
-		    //console.log(article.title + ':' + article.link)
+        archives.forEach(archive => {
+		    //console.log(archive.title + ':' + archive.link)
 		    notifier.notify({
-                title: article.title,
-                message: article.link,
+                title: archive.title,
+                message: archive.link,
                 sound: true,
                 wait: true
             });
@@ -45,18 +45,18 @@ function pollArticle(count = 1) {
 }
 
 //https://www.npmjs.com/package/node-notifier 참고
-notifier.on('click', function (notifierObject, article) {
-    console.log(article.title + ':' + article.message);
-    archive.findOne({read: null, "link":article.message}, function(err, dbArticle)  {
+notifier.on('click', function (notifierObject, archive) {
+    console.log(archive.title + ':' + archive.message);
+    archiveSchema.findOne({read: null, "link":archive.message}, function(err, dbArchive)  {
         if(err) {
             return console.log({error: 'database failure'});
         }
 
-        dbArticle.read = true;
-        var promise = dbArticle.save();
+        dbArchive.read = true;
+        var promise = dbArchive.save();
         promise.then(function(doc){
             console.log("read success" + doc);
-            open(dbArticle.link);
+            open(dbArchive.link);
         });
     });
 });
@@ -66,17 +66,4 @@ var promise = mongoose.connect('mongodb://localhost/test_crawler', {
 });
 
 // DEFINE MODEL
-var archive = require('./models/archive');
-
-// [CONFIGURE APP TO USE bodyParser]
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// [CONFIGURE SERVER PORT]
-
-var port = process.env.PORT || 8080;
-
-// [RUN SERVER]
-var server = app.listen(port, function(){
- console.log("Express server has started on port " + port)
-});
+var archiveSchema = require('./models/archive');
