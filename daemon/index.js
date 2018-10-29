@@ -28,7 +28,7 @@ db.once('open', function(){
 });
 
 function pollArticle(count = 10) {
-    archiveModel.find({type: "RuliwebHotdeal", notify: null}, function(err, archives){
+    archiveModel.find({type: config["notify_type"], notify: null}, function(err, archives){
         if(err) {
             return console.log({error: 'database failure'});
         }
