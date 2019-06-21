@@ -63,8 +63,11 @@ function pollArticle(count = 10) {
     }).skip(0).limit(count);
 }
 
-var promise = mongoose.connect('mongodb://localhost/test_crawler', {
-    useMongoClient: true
+var promise = mongoose.connect(config.mongoose.connectionString, {
+    "auth": {"authSource": config.mongoose.authSource},
+    "user": config.mongoose.user,
+    "pass": config.mongoose.pass,
+    "useMongoClient": true
 });
 
 // DEFINE MODEL
