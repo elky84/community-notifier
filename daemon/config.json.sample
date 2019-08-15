@@ -1,10 +1,22 @@
 {
-    "hook_url":"input your hook_url",  
-    "notify_type": "RuliwebHotdeal",
     "mongoose": {
         "connectionString":"mongodb://localhost:27017/test_crawler", 
         "user":"", 
         "pass":"",
         "authSource": ""
-    }
+    },
+    "hooks": [
+        {
+            "hook_url":"input your hook_url",  
+            "notify_type": "RuliwebHotdeal"
+        },
+        {
+            "hook_url":"input your hook_url",  
+            "notify_type": "ThisisgamePad"
+        },
+        {
+            "hook_url":"input your hook_url",  
+            "notify_type": "FmKorea"
+        }
+    ]
 }

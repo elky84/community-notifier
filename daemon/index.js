@@ -1,13 +1,13 @@
-var express     = require('express');
-var app         = express();
+var express = require('express');
+var app = express();
 var bodyParser  = require('body-parser');
-var mongoose    = require('mongoose');
-var axios       = require('axios')
-var moment      = require('moment')
-var fs          = require('fs');
+var mongoose = require('mongoose');
+var axios = require('axios')
+var moment = require('moment')
+var fs = require('fs');
+var _ = require('lodash');
 
-
-var config      = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+var config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 console.log("config: " + JSON.stringify(config));
 
 mongoose.Promise = require('bluebird');
@@ -28,39 +28,38 @@ db.once('open', function(){
 });
 
 function pollArticle(count = 10) {
-    archiveModel.find({type: config["notify_type"], notify: null}, function(err, archives){
-        if(err) {
-            return console.log({error: 'database failure'});
-        }
-
-        console.log(JSON.stringify(archives));
-
-        messages = []
-        archives.forEach(archive => {
-		    archiveModel.findOne({"_id":archive._id}, function(err, dbArchive)  {
-                if(err) {
-                    return console.log({error: 'database failure'});
-                }
-        
-                dbArchive.notify = true;
-                var promise = dbArchive.save();
-                promise.then(function(doc){
-                    // console.log("notify process success" + doc);
-                    messages.push(archive.title + " <" + moment(archive.date).format('YYYY-MM-DD HH:mm') + "> " + archive.link);
-
-                    if(messages.length == archives.length) {
-                        message = {"text": messages.join("\n")}
-                        axios.post(config["hook_url"], message).then((result) => {
-                            console.log(result);
-                        });    
+    _.forEach(config["hooks"], function(hook) {
+        archiveModel.find({type: hook.notify_type, notify: null}, function(err, archives){
+            if(err) {
+                return console.log({error: 'database failure'});
+            }
+    
+            console.log(JSON.stringify(archives));
+    
+            messages = []
+            archives.forEach(archive => {
+                archiveModel.findOne({"_id":archive._id}, function(err, dbArchive)  {
+                    if(err) {
+                        return console.log({error: 'database failure'});
                     }
+            
+                    dbArchive.notify = true;
+                    var promise = dbArchive.save();
+                    promise.then(function(doc){
+                        // console.log("notify process success" + doc);
+                        messages.push(archive.title + " <" + moment(archive.date).format('YYYY-MM-DD HH:mm') + "> " + archive.link);
+    
+                        if(messages.length == archives.length) {
+                            message = {"text": messages.join("\n")}
+                            axios.post(hook.hook_url, message).then((result) => {
+                                console.log(result);
+                            });    
+                        }
+                    });
                 });
-            });
-
-        })
-
-
-    }).skip(0).limit(count);
+            })
+        }).skip(0).limit(count);
+    });
 }
 
 var promise = mongoose.connect(config.mongoose.connectionString, {
