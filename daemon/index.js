@@ -36,7 +36,7 @@ function pollArticle(count = 10) {
     
             console.log(JSON.stringify(archives));
     
-            messages = []
+            var messages = []
             archives.forEach(archive => {
                 archiveModel.findOne({"_id":archive._id}, function(err, dbArchive)  {
                     if(err) {
