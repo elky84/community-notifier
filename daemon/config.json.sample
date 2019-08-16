@@ -8,15 +8,18 @@
     "hooks": [
         {
             "hook_url":"input your hook_url",  
-            "notify_type": "RuliwebHotdeal"
+            "notify_type": "RuliwebHotdeal",
+            "icon_url": ""
         },
         {
             "hook_url":"input your hook_url",  
-            "notify_type": "ThisisgamePad"
+            "notify_type": "ThisisgamePad",
+            "icon_url": ""
         },
         {
             "hook_url":"input your hook_url",  
-            "notify_type": "FmKorea"
+            "notify_type": "FmKorea",
+            "icon_url": ""
         }
     ]
 }
