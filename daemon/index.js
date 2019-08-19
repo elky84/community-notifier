@@ -50,7 +50,7 @@ function pollArticle(count = 10) {
                         messages.push(archive.title + " <" + moment(archive.date).format('YYYY-MM-DD HH:mm') + "> " + archive.link);
     
                         if(messages.length == archives.length) {
-                            message = {"text": messages.join("\n"), "username": hook.notify_type, "icon_url": hook.icon_url}
+                            message = {"text": messages.join("\n"), "username": hook.notify_type, "icon_url": hook.icon_url, "channel": hook.channel}
                             axios.post(hook.hook_url, message).then((result) => {
                                 console.log(result);
                             });
