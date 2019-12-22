@@ -14,8 +14,32 @@ mongoose.Promise = require('bluebird');
 
 // Timer : https://nodejs.org/ko/docs/guides/timers-in-node/
 
+function mongooseConnect() {
+    mongoose.connect(config.mongoose.connectionString, {
+        "auth": {"authSource": config.mongoose.authSource},
+        "user": config.mongoose.user,
+        "pass": config.mongoose.pass,
+        "useMongoClient": true,
+        autoReconnect: true
+    });
+} 
+
+// DEFINE MODEL
+var archiveModel = require('./models/archive');
+
 var db = mongoose.connection;
-db.on('error', console.error);
+db.on('error', function(err) {
+    console.error(err);
+
+    mongoose.disconnect();
+});
+
+db.on('disconnected', function () {
+    console.log('MongoDB disconnected!');
+
+    mongooseConnect();
+});
+
 db.once('open', function(){
     // CONNECTED TO MONGODB SERVER
     console.log("Connected to mongod server");
@@ -28,47 +52,43 @@ db.once('open', function(){
 });
 
 function pollArticle(count = 10) {
-    _.forEach(config["hooks"], function(hook) {
-        archiveModel.find({type: hook.notify_type, notify: null}, function(err, archives){
-            if(err) {
-                return console.log({error: 'database failure'});
-            }
-    
-            console.log(JSON.stringify(archives));
-    
-            var messages = []
-            archives.forEach(archive => {
-                archiveModel.findOne({"_id":archive._id}, function(err, dbArchive)  {
-                    if(err) {
-                        return console.log({error: 'database failure'});
-                    }
-            
-                    dbArchive.notify = true;
-                    var promise = dbArchive.save();
-                    promise.then(function(doc){
-                        // console.log("notify process success" + doc);
-                        messages.push(archive.title + " <" + moment(archive.date).format('YYYY-MM-DD HH:mm') + "> " + archive.link);
-    
-                        if(messages.length == archives.length) {
-                            message = {"text": messages.join("\n"), "username": hook.notify_type, "icon_url": hook.icon_url, "channel": hook.channel}
-                            axios.post(hook.hook_url, message).then((result) => {
-                                console.log(result);
-                            });
+    try {
+        _.forEach(config["hooks"], function(hook) {
+            archiveModel.find({type: hook.notify_type, notify: null}, function(err, archives){
+                if(err) {
+                    return console.log({error: 'database failure'});
+                }
+        
+                console.log(JSON.stringify(archives));
+        
+                var messages = []
+                archives.forEach(archive => {
+                    archiveModel.findOne({"_id":archive._id}, function(err, dbArchive)  {
+                        if(err) {
+                            return console.log({error: 'database failure'});
                         }
+                
+                        dbArchive.notify = true;
+                        var promise = dbArchive.save();
+                        promise.then(function(doc){
+                            // console.log("notify process success" + doc);
+                            messages.push(archive.title + " <" + moment(archive.date).format('YYYY-MM-DD HH:mm') + "> " + archive.link);
+        
+                            if(messages.length == archives.length) {
+                                message = {"text": messages.join("\n"), "username": hook.notify_type, "icon_url": hook.icon_url, "channel": hook.channel}
+                                axios.post(hook.hook_url, message).then((result) => {
+                                    console.log(result);
+                                });
+                            }
+                        });
                     });
-                });
-            })
-        }).skip(0).limit(count);
-    });
+                })
+            }).skip(0).limit(count);
+        });
+    }
+    catch(e) {
+        console.log(e);
+    }
 }
 
-var promise = mongoose.connect(config.mongoose.connectionString, {
-    "auth": {"authSource": config.mongoose.authSource},
-    "user": config.mongoose.user,
-    "pass": config.mongoose.pass,
-    "useMongoClient": true
-});
-
-// DEFINE MODEL
-var archiveModel = require('./models/archive');
-
+mongooseConnect();
