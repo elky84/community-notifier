@@ -39,7 +39,7 @@ $ node app.js
 
 ![daemon](./daemon.png)
 
-이 프로젝트는 <https://github.com/elky84/community_notifier> 프로젝트에서 크롤링한 정보를 바탕으로 동작합니다.
+이 프로젝트는 <https://github.com/elky84/community-notifier-py> 프로젝트에서 크롤링한 정보를 바탕으로 동작합니다.
 
 local에 설치된 mongodb를 바탕으로 동작하므로, 해당 설정 정보를 수정하셔야 합니다.
 
