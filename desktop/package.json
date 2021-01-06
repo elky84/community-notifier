@@ -12,7 +12,7 @@
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "mongoose": ">=5.7.5",
-    "node-notifier": "^5.2.1",
-	"open": ">=6.0.0"
+    "node-notifier": ">=8.0.1",
+    "open": ">=6.0.0"
   }
 }
